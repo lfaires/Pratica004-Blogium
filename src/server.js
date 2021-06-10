@@ -22,9 +22,8 @@ app.get('/posts', (req,res) => {
 
 app.post('/posts', (req,res) => {
     console.log("recebi um pedido para adicionar os posts")
-    const id = posts.length+1;
     const contentPreview = 'Esta é a estrutura de um post esperado pelo front-end';
-    const post = {...req.body,...id,...contentPreview}
+    const post = {...req.body,id: posts.length +1,contentPreview: contentPreview}
     posts.push(post)
     console.log(post)
     res.send(post)
