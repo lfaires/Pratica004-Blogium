@@ -7,14 +7,7 @@ app.use(express.json());
 app.use(cors());
 const count = 0;
 
-const posts = [{
-    id: 1,
-    title: 'Hello World',
-    coverUrl: 'https://miro.medium.com/max/1024/1*OohqW5DGh9CQS4hLY5FXzA.png',
-    content: 'Este é o conteúdo do post, o que realmente vai aparecer na página do post...',
-    contentPreview: 'Esta é a estrutura de um post esperado pelo front-end',
-    commentCount: 2
-  }];
+  const posts = [];
 
   const comments = [{
     id: 1,
@@ -30,6 +23,7 @@ const posts = [{
 
 app.get('/posts', (req,res) => {
     console.log("recebi um pedido para ter os posts")
+    console.log(posts)
     res.send(posts)
 })
 
@@ -43,8 +37,13 @@ app.post('/posts', (req,res) => {
 
 app.get('/posts/:idDoPost', (req,res) => {
     const id = parseInt(req.params.idDoPost)
-    const post = posts.filter( item => item.id === id)[0]
-    console.log(post)
+    let post = {}
+    posts.forEach( item => {
+        if(item.id === id){
+            post = item;
+            return
+        }
+    })
     res.send(post)
 })
 
@@ -59,6 +58,20 @@ app.get('/posts/:idDoPost/comments', (req,res) =>{
     const id = parseInt(req.params.idDoPost)
     const comment = comments.filter( item => item.postId === id)
     res.send(comment)
+})
+
+app.put('/posts/:idDoPost', (req,res) =>{
+    const id = parseInt(req.params.idDoPost)
+    const {content, coverUrl, title} = req.body
+    posts.forEach( item => {
+        if(item.id === id){
+            item.content = content;
+            item.coverUrl = coverUrl;
+            item.title = title;
+            return
+        }
+    })
+    res.send("")
 })
 
 app.listen(4001, () =>{
