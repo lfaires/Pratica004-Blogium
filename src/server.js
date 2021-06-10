@@ -5,7 +5,7 @@ import fs from 'fs'
 const app = express()
 app.use(express.json());
 app.use(cors());
-const count = 0;
+let count = 0;
 
   const posts = [];
 
@@ -22,21 +22,20 @@ const count = 0;
   }]
 
 app.get('/posts', (req,res) => {
-    console.log("recebi um pedido para ter os posts")
-    console.log(posts)
     res.send(posts)
 })
 
 app.post('/posts', (req,res) => {
-    const contentPreview = 'Esta é a estrutura de um post esperado pelo front-end';
-    const post = {id: posts.length +1,...req.body,contentPreview: contentPreview}
+    const {content, coverUrl, title} = req.body
+    const contentPreview = content.slice(0,50);
+    const commentCount = 0
+    const post = {id: `${count += 1}`,title, content, coverUrl ,contentPreview, commentCount}
     posts.push(post)
     res.send(post)
-    console.log(posts)
 })
 
-app.get('/posts/:idDoPost', (req,res) => {
-    const id = parseInt(req.params.idDoPost)
+app.get('/posts/:id', (req,res) => {
+    const {id} = req.params
     let post = {}
     posts.forEach( item => {
         if(item.id === id){
@@ -47,31 +46,41 @@ app.get('/posts/:idDoPost', (req,res) => {
     res.send(post)
 })
 
-app.post('/posts/:idDoPost/comments', (req,res) =>{
-    const id = parseInt(req.params.idDoPost)
-    const comment = {id: count+1,...req.body}
+app.post('/posts/:id/comments', (req,res) =>{
+    const {id} = req.params
+    const {postId, author, content } = req.body
+    const comment = {id: `${count += 1}`, postId, author, content}
+    const index = posts.findIndex( post => {
+        return post.id === id
+    })
+    posts[index].commentCount += 1; 
     comments.push(comment)
     res.send(comment)
 })
 
-app.get('/posts/:idDoPost/comments', (req,res) =>{
-    const id = parseInt(req.params.idDoPost)
+app.get('/posts/:id/comments', (req,res) =>{
+    const {id} = req.params
     const comment = comments.filter( item => item.postId === id)
     res.send(comment)
 })
 
-app.put('/posts/:idDoPost', (req,res) =>{
-    const id = parseInt(req.params.idDoPost)
+app.put('/posts/:id', (req,res) =>{
+    const {id} = req.params
     const {content, coverUrl, title} = req.body
-    posts.forEach( item => {
-        if(item.id === id){
-            item.content = content;
-            item.coverUrl = coverUrl;
-            item.title = title;
+    posts.forEach( post => {
+        if(post.id === id){
+            post.content = content;
+            post.coverUrl = coverUrl;
+            post.title = title;
             return
         }
     })
-    res.send("")
+    res.send("editou")
+})
+
+app.delete('/posts/:id', (req,res) =>{
+    const {id} = req.params
+    const post = req.body
 })
 
 app.listen(4001, () =>{
